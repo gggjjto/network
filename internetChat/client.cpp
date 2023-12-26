@@ -39,6 +39,7 @@ int main(int argc, char* argv[])
         close(sockfd);
         return 1;
     }
+    //cout<<"连接建立成功\n";
     pollfd fds[2];
     fds[0].fd = 0;
     fds[0].events =POLLIN; // 等待事件
@@ -54,6 +55,7 @@ int main(int argc, char* argv[])
 
     while(1)
     {
+        //cout<<"成功建立连接\n";
         ret = poll(fds, 2, -1); // -1 等待
         if(ret < 0)
         {
@@ -68,15 +70,16 @@ int main(int argc, char* argv[])
         }
         else if(fds[1].revents & POLLIN) // 通信开始
         {
+            //cout<<"通信开始\n";
             memset(read_buf,'\0',BUFFER_SIZE);
             recv(fds[1].fd, read_buf, BUFFER_SIZE - 1, 0); // 接受数据
-            cout<<read_buf;
+            cout<<read_buf<<endl;
         }
         if(fds[0].revents & POLLIN) // 上传数据
         {
             ret = splice(0, NULL, pipefd[1], NULL, 32768, SPLICE_F_MORE | SPLICE_F_MOVE);
             ret = splice(pipefd[0], NULL, sockfd, NULL, 32768, SPLICE_F_MORE | SPLICE_F_MOVE);
-            printf("pipefd[0]:%d pipefd[0]:%d\n",pipefd[0],pipefd[1]);
+            //printf("pipefd[0]:%d pipefd[1]:%d\n",pipefd[0],pipefd[1]);
         }
     }
     close(sockfd);

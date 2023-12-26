@@ -55,11 +55,14 @@ int main(int argc, char* argv[])
     address.sin_port = htons(port);
 
     int listenfd = socket(PF_INET, SOCK_STREAM, 0);
+    assert(listenfd >= 0);
+
+    ret = bind(listenfd, (struct sockaddr*) &address, sizeof(address));
     assert(ret != -1);
 
     ret = listen(listenfd, 5); // 监听服务器端开始传入连接请求的函数，等待连接数5
-
     assert(ret != 1);
+
     client_data* users = new client_data[FD_LIMIT]; // 储存客户端数据
     pollfd fds[USER_LIMIT + 1]; // 监视文件描述符上发生事件的数据结构
     int user_counter = 0;
@@ -70,7 +73,7 @@ int main(int argc, char* argv[])
     }
     fds[0].fd = listenfd;
     fds[0].events = POLLIN | POLLERR;
-    fds[0].revents = 0;
+    fds[0].revents = 0; 
 
     while(1)
     {
@@ -92,7 +95,7 @@ int main(int argc, char* argv[])
                     printf("errno is: %d\n", errno);
                     continue;
                 }
-                printf("地址：%d\n",connfd);
+                //printf("地址：%d\n",connfd);
                 if(user_counter >= USER_LIMIT)
                 {
                     const char* info = "too many users\n";
